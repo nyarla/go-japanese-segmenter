@@ -1,19 +1,36 @@
 package segmenter
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/nyarla/go-japanese-segmenter/defaults"
 )
 
+type dummyWriter struct{}
+
+func (dummy *dummyWriter) Write(b []byte) (int, error) {
+	return len(b), nil
+}
+
+func (dummy *dummyWriter) Reset() error {
+	return nil
+}
+
 func ExampleSegmenter() {
-	src := "今日は良い天気ですね"
-	seg := New(src)
+	src := strings.NewReader("今日は良い天気ですね")
+	dst := new(strings.Builder)
+	dict := BiasCalculatorFunc(defaults.CalculateBias)
+	seg := New(dst, src)
 
 	for {
-		token, err := seg.Segment(defaults.Dictionary)
+		err := seg.Segment(dict)
 
 		if err != nil && err != io.EOF {
 			panic(err)
@@ -23,22 +40,27 @@ func ExampleSegmenter() {
 			break
 		}
 
-		fmt.Println(token)
+		fmt.Println(dst.String())
+		dst.Reset()
 	}
+
+	fmt.Println(dst.String())
+	dst.Reset()
 
 	// Output:
 	// 今日
 	// は
 	// 良い
 	// 天気
-	// です
-	// ね
+	// ですね
 }
 
 func BenchmarkSegmenter(b *testing.B) {
-	src := "今日は良い天気ですね"
-	seg := New(src)
-	num := 0
+	msg := "今日は良い天気ですね"
+	src := strings.NewReader(msg)
+	dst := new(dummyWriter)
+	dict := BiasCalculatorFunc(defaults.CalculateBias)
+	seg := New(dst, src)
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -46,7 +68,7 @@ func BenchmarkSegmenter(b *testing.B) {
 	for idx := 0; idx < b.N; idx++ {
 	loop:
 		for {
-			_, err := seg.Segment(defaults.Dictionary)
+			err := seg.Segment(dict)
 
 			if err != nil && err != io.EOF {
 				b.Fail()
@@ -56,14 +78,86 @@ func BenchmarkSegmenter(b *testing.B) {
 				break loop
 			}
 
-			num += 1
+			dst.Reset()
 		}
 
-		if num != 6 {
-			b.Fatal(num)
+		src.Reset(msg)
+		seg.Reset(src)
+	}
+}
+
+func BenchmarkSegmentTextInMemory(b *testing.B) {
+	src, err := ioutil.ReadFile("timemachineu8j.txt")
+	if err != nil {
+		b.Fail()
+	}
+
+	r := bytes.NewReader(src)
+	dst := new(dummyWriter)
+	dict := BiasCalculatorFunc(defaults.CalculateBias)
+
+	seg := New(dst, r)
+
+	b.ResetTimer()
+
+	for idx := 0; idx < b.N; idx++ {
+	loop:
+		for {
+			errS := seg.Segment(dict)
+
+			if errS != nil && errS != io.EOF {
+				b.Fail()
+			}
+
+			if errS == io.EOF {
+				break loop
+			}
+
+			dst.Reset()
 		}
 
-		seg.Reset()
-		num = 0
+		r.Reset(src)
+		seg.Reset(r)
+	}
+}
+
+func BenchmarkSegmentTextInBufIO(b *testing.B) {
+	src, err := os.Open("timemachineu8j.txt")
+	if err != nil {
+		b.Fail()
+	}
+
+	r := bufio.NewReader(src)
+	dst := new(dummyWriter)
+	dict := BiasCalculatorFunc(defaults.CalculateBias)
+
+	seg := New(dst, r)
+
+	b.ResetTimer()
+
+	for idx := 0; idx < b.N; idx++ {
+	loop:
+		for {
+			errS := seg.Segment(dict)
+
+			if errS != nil && errS != io.EOF {
+				b.Fail()
+			}
+
+			if errS == io.EOF {
+				break loop
+			}
+
+			dst.Reset()
+		}
+
+		src.Close()
+		src, err = os.Open("timemachineu8j.txt")
+		if err != nil {
+			b.Fail()
+		}
+
+		r.Reset(src)
+		seg.Reset(r)
 	}
 }
