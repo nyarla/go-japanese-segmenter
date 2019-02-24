@@ -42,7 +42,7 @@ func (list List) Swap(i, j int) {
 
 func (list List) Less(i, j int) bool {
 	iV := []rune(list[i].Var)
-	jV := []rune(list[i].Var)
+	jV := []rune(list[j].Var)
 
 	if iV[0] < jV[0] {
 		return true
