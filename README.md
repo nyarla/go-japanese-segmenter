@@ -52,6 +52,33 @@ func main() {
 
 ```
 
+Benchmark
+---------
+
+  * OS: NixOS
+  * Kernel: Linux 4.20.11
+  * Machine: Dell XPS 9560 4K (JP model)
+  * CPU: Core i7 7700HQ
+  * Memory: 16GB
+
+```sh
+$ go test -bench BenchmarkSegmenter -test.count=10                                                                                                                     /run/media/nyarla/DATA/active/dev/github.com/nyarla/go-japanese-segmenter/segmenter
+goos: linux
+goarch: amd64
+BenchmarkSegmenter-8      300000              5150 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5156 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5113 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5163 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5177 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5073 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5140 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5147 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5211 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-8      300000              5185 ns/op               0 B/op          0 allocs/op
+PASS
+ok      _/run/media/nyarla/DATA/active/dev/github.com/nyarla/go-japanese-segmenter/segmenter    16.019s
+```
+
 Documentation
 -------------
 
