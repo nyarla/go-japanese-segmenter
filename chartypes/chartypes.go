@@ -50,6 +50,10 @@ func CharTypeAt(r rune) rune {
 	}
 
 	if 0x4E00 <= r {
+		if 0x767F <= r {
+			return Hchar
+		}
+
 		if r == 0x767E {
 			return Mchar
 		}
