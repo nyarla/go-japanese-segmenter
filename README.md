@@ -62,7 +62,8 @@ Benchmark
   * Memory: 16GB
 
 ```sh
-$ go test -bench BenchmarkSegmenter -test.count=10                                                                                                                     /run/media/nyarla/DATA/active/dev/github.com/nyarla/go-japanese-segmenter/segmenter
+$ go test -bench BenchmarkSegmenter -test.count=10
+
 goos: linux
 goarch: amd64
 BenchmarkSegmenter-8      300000              5150 ns/op               0 B/op          0 allocs/op
