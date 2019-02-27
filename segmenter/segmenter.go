@@ -8,12 +8,10 @@ import (
 )
 
 const (
-	e1 = 0x110001
-	e2 = 0x110002
-	e3 = 0x110003
-	e4 = 0x110004
-	e5 = 0x110005
-	e6 = 0x110006
+	b1 = 0x110001
+	b2 = 0x110002
+	b3 = 0x110003
+	e1 = 0x110004
 )
 
 type BiasCalculator interface {
@@ -52,17 +50,19 @@ func New(dst io.Writer, src io.RuneReader) Segmenter {
 
 func (this *segmenter) Reset(src io.RuneReader) {
 	this.src = src
-	for idx := 0; idx < len(this.buf); idx++ {
-		this.buf[idx] = 0
-	}
+
+	this.buf[0] = 0
+	this.buf[1] = 0
+	this.buf[2] = 0
+	this.buf[3] = 0
 
 	this.p1 = char.Uchar
 	this.p2 = char.Uchar
 	this.p3 = char.Uchar
 
-	this.r1 = e1
-	this.r2 = e2
-	this.r3 = e3
+	this.r1 = b3
+	this.r2 = b2
+	this.r3 = b1
 	this.r4 = 0
 	this.r5 = 0
 	this.r6 = 0
@@ -77,39 +77,48 @@ func (this *segmenter) Reset(src io.RuneReader) {
 
 func (this *segmenter) Segment(calc BiasCalculator) error {
 	for {
+		var t rune
 		r, _, err := this.src.ReadRune()
-		if err != nil && err != io.EOF {
-			return err
+
+		if err != nil {
+			if err != io.EOF {
+				return err
+			}
+
+			if this.r6 < e1 {
+				r = e1
+			} else {
+				r = this.r6 + 1
+			}
+
+			t = char.Ochar
 		}
+
+		t = char.CharTypeAt(r)
 
 		switch {
 		case this.r4 == 0:
 			this.r4 = r
-			this.t4 = char.CharTypeAt(r)
+			this.t4 = t
 			continue
 		case this.r5 == 0:
 			this.r5 = r
-			this.t5 = char.CharTypeAt(r)
+			this.t5 = t
 			continue
 		case this.r6 == 0:
-			this.r6 = r
-			this.t6 = char.CharTypeAt(r)
+			// do nothing
 		default:
 			this.r1, this.r2, this.r3, this.r4, this.r5 = this.r2, this.r3, this.r4, this.r5, this.r6
 			this.t1, this.t2, this.t3, this.t4, this.t5 = this.t2, this.t3, this.t4, this.t5, this.t6
+		}
 
-			if err == io.EOF {
-				switch this.r5 {
-				case e4:
-					this.r6 = e5
-				case e5:
-					this.r6 = e6
-				default:
-					this.r6 = e4
-				}
-			} else {
-				this.r6 = r
-				this.t6 = char.CharTypeAt(r)
+		this.r6 = r
+		this.t6 = t
+
+		if this.r3 < b1 {
+			size := utf8.EncodeRune(this.buf, this.r3)
+			if _, err = this.dst.Write(this.buf[0:size]); err != nil {
+				return err
 			}
 		}
 
@@ -131,25 +140,19 @@ func (this *segmenter) Segment(calc BiasCalculator) error {
 			this.t6,
 		)
 
-		if this.r3 < e3 {
-			size := utf8.EncodeRune(this.buf, this.r3)
-			if _, err = this.dst.Write(this.buf[0:size]); err != nil {
-				return err
-			}
-		}
+		this.p1, this.p2 = this.p2, this.p3
 
 		if bias > 0 {
-			this.p1 = this.p2
-			this.p2 = this.p3
 			this.p3 = char.Bchar
-			return nil
+
+			if this.r3 < b1 {
+				return nil
+			}
 		} else {
-			this.p1 = this.p2
-			this.p2 = this.p3
 			this.p3 = char.Ochar
 		}
 
-		if this.r3 >= e4 {
+		if this.r3 >= e1 {
 			break
 		}
 	}
