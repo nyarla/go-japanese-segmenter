@@ -5,14 +5,14 @@ import (
 	"io"
 	"strings"
 
-	"github.com/nyarla/go-japanese-segmenter/defaults"
+	"github.com/nyarla/go-japanese-segmenter/dicts/tinyseg"
 	"github.com/nyarla/go-japanese-segmenter/segmenter"
 )
 
 func main() {
 	src := strings.NewReader("今日は良い天気ですね")
 	dst := new(strings.Builder)
-	dict := segmenter.BiasCalculatorFunc(defaults.CalculateBias)
+	dict := segmenter.BiasCalculatorFunc(tinyseg.CalculateBias)
 	seg := segmenter.New(dst, src)
 
 	for {

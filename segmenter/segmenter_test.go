@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nyarla/go-japanese-segmenter/defaults"
+	"github.com/nyarla/go-japanese-segmenter/dicts/tinyseg"
 )
 
 type dummyWriter struct{}
@@ -26,7 +26,7 @@ func (dummy *dummyWriter) Reset() error {
 func ExampleSegmenter() {
 	src := strings.NewReader("今日は良い天気ですね")
 	dst := new(strings.Builder)
-	dict := BiasCalculatorFunc(defaults.CalculateBias)
+	dict := BiasCalculatorFunc(tinyseg.CalculateBias)
 	seg := New(dst, src)
 
 	for {
@@ -59,7 +59,7 @@ func BenchmarkSegmenter(b *testing.B) {
 	msg := "今日は良い天気ですね"
 	src := strings.NewReader(msg)
 	dst := new(dummyWriter)
-	dict := BiasCalculatorFunc(defaults.CalculateBias)
+	dict := BiasCalculatorFunc(tinyseg.CalculateBias)
 	seg := New(dst, src)
 
 	b.ReportAllocs()
@@ -94,7 +94,7 @@ func BenchmarkSegmentTextInMemory(b *testing.B) {
 
 	r := bytes.NewReader(src)
 	dst := new(dummyWriter)
-	dict := BiasCalculatorFunc(defaults.CalculateBias)
+	dict := BiasCalculatorFunc(tinyseg.CalculateBias)
 
 	seg := New(dst, r)
 
@@ -129,7 +129,7 @@ func BenchmarkSegmentTextInBufIO(b *testing.B) {
 
 	r := bufio.NewReader(src)
 	dst := new(dummyWriter)
-	dict := BiasCalculatorFunc(defaults.CalculateBias)
+	dict := BiasCalculatorFunc(tinyseg.CalculateBias)
 
 	seg := New(dst, r)
 
