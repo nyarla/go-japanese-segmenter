@@ -14,14 +14,14 @@ import (
 	"io"
 	"strings"
 
-	"github.com/nyarla/go-japanese-segmenter/defaults"
+	"github.com/nyarla/go-japanese-segmenter/dicts/tinyseg"
 	"github.com/nyarla/go-japanese-segmenter/segmenter"
 )
 
 func main() {
 	src := strings.NewReader("今日は良い天気ですね")
 	dst := new(strings.Builder)
-	dict := segmenter.BiasCalculatorFunc(defaults.CalculateBias)
+	dict := segmenter.BiasCalculatorFunc(tinyseg.CalculateBias)
 	seg := segmenter.New(dst, src)
 
 	for {
@@ -55,29 +55,30 @@ func main() {
 Benchmark
 ---------
 
-  * OS: NixOS
-  * Kernel: Linux 4.20.11
-  * Machine: Dell XPS 9560 4K (JP model)
-  * CPU: Core i7 7700HQ
-  * Memory: 16GB
+  * OS: NixOS on Hyper-V with Windows 10 Pro (build 19042.928)
+  * Kernel: Linux 5.10.19
+  * Machine: Desktop PC
+  * CPU: AMD Ryzen 9 3950X (assign 16 threads)
+  * Memory: assign 32GB 
 
 ```sh
 $ go test -bench BenchmarkSegmenter -test.count=10
-
 goos: linux
 goarch: amd64
-BenchmarkSegmenter-8      300000              5150 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5156 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5113 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5163 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5177 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5073 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5140 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5147 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5211 ns/op               0 B/op          0 allocs/op
-BenchmarkSegmenter-8      300000              5185 ns/op               0 B/op          0 allocs/op
+pkg: github.com/nyarla/go-japanese-segmenter/segmenter
+cpu: AMD Ryzen 9 3950X 16-Core Processor
+BenchmarkSegmenter-16             213902              5556 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             214588              5538 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             215530              5593 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             214365              5560 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             214882              5551 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             215779              5546 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             215514              5577 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             213500              5649 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             213333              5652 ns/op               0 B/op          0 allocs/op
+BenchmarkSegmenter-16             199754              5645 ns/op               0 B/op          0 allocs/op
 PASS
-ok      _/run/media/nyarla/DATA/active/dev/github.com/nyarla/go-japanese-segmenter/segmenter    16.019s
+ok      github.com/nyarla/go-japanese-segmenter/segmenter       12.498s
 ```
 
 Documentation
@@ -98,9 +99,9 @@ $ cat dictionary.json
   ...
 }
 
-$ go get github.com/go-japanese-segmenter/cmds/tinydictgen
+$ go get github.com/go-japanese-segmenter/cmd/tinydictgen
 $ tinydictgen -pkg mydict -bias "-332" -json ./dictionary.json
-$ got fmt
+$ go fmt
 $ cat mydict_generated.go
 // this code is auto-generated. DO NOT EDIT.
 package defaults
@@ -116,16 +117,16 @@ Running Benchmark
 -----------------
 
 ```sh
-$ cd /path/to/go-japanese-segmenter
-$ sh ./download.sh # or cd segmenter && curl -LO http://www.genpaku.org/timemachine/timemachineu8j.txt
-$ go test -bench Benchmark ./...
+$ cd /path/to/go-japanese-segmenter/segmenter
+$ curl -LO http://www.genpaku.org/timemachine/timemachineu8j.txt
+$ go test -bench BenchmarkSegmenter -test.count=10
 ```
 
 Copyrights Notice
 -----------------
 
-This library contians dictionary data (`defaults/defaults.json`) splitted from original [TinySegmenter.js](http://chasen.org/~taku/software/TinySegmenter/),
-and dictionary code (`defaults/defaults_generated.go`) is generated from splitted dictionary data. 
+This library contians dictionary data (`dicts/tinyseg.json`) splitted from original [TinySegmenter.js](http://chasen.org/~taku/software/TinySegmenter/),
+and dictionary code (`dicts/tinyseg_generated.go`) is generated from splitted dictionary data. 
 
 Please looking at _Licenses section_ in this `README.md` about license of original TinySegmenter.js 
 
@@ -201,5 +202,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Contacts
 --------
 
-  * Naoki OKAMURA <nyarla@thotep.net>
+  * Naoki OKAMURA <nyarla@kalaclista.com>
 
