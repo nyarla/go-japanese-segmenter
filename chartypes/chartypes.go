@@ -1,7 +1,7 @@
 package chartypes
 
 const (
-	Ochar rune = '0'
+	Ochar rune = 'O'
 	Mchar rune = 'M'
 	Hchar rune = 'H'
 	Ichar rune = 'I'
