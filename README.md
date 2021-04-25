@@ -84,7 +84,7 @@ ok      github.com/nyarla/go-japanese-segmenter/segmenter       12.498s
 Documentation
 -------------
 
-  * <https://godoc.org/github.com/nyarla/go-japanese-segmenter/segmenter>
+  * <https://pkg.go.dev/github.com/nyarla/go-japanese-segmenter@v0.1.0>
 
 How to rebuild dictionary code (bias calculator)
 ------------------------------------------------
