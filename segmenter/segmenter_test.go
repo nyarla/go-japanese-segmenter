@@ -98,18 +98,19 @@ func BenchmarkSegmentTextInMemory(b *testing.B) {
 
 	seg := New(dst, r)
 
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for idx := 0; idx < b.N; idx++ {
 	loop:
 		for {
-			errS := seg.Segment(dict)
+			err = seg.Segment(dict)
 
-			if errS != nil && errS != io.EOF {
+			if err != nil && err != io.EOF {
 				b.Fail()
 			}
 
-			if errS == io.EOF {
+			if err == io.EOF {
 				break loop
 			}
 
@@ -133,28 +134,23 @@ func BenchmarkSegmentTextInBufIO(b *testing.B) {
 
 	seg := New(dst, r)
 
+	b.ReportAllocs()
 	b.ResetTimer()
 
 	for idx := 0; idx < b.N; idx++ {
 	loop:
 		for {
-			errS := seg.Segment(dict)
+			err = seg.Segment(dict)
 
-			if errS != nil && errS != io.EOF {
+			if err != nil && err != io.EOF {
 				b.Fail()
 			}
 
-			if errS == io.EOF {
+			if err == io.EOF {
 				break loop
 			}
 
 			dst.Reset()
-		}
-
-		src.Close()
-		src, err = os.Open("timemachineu8j.txt")
-		if err != nil {
-			b.Fail()
 		}
 
 		r.Reset(src)
